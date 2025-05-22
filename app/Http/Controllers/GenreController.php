@@ -56,4 +56,80 @@ class GenreController extends Controller
             'data' => $genre
         ], 201);
     }
+
+    public function show(string $id) {
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+            'success'=> false,
+            'message'=>'Resource not found'
+        ], 404);
+        }
+
+        return response()->json([
+            'success'=> true,
+            'message'=>'Get detail resource',
+            'data'=> $genre
+        ], 200);
+    }
+
+    public function update(string $id, Request $request){
+        // 1. Mencari data
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource not found'
+            ], 404);
+        }
+
+        // 2. Validator
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        // 3. Siapkan data yang ingin di-update
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+
+        // 4. Update data ke database
+        $genre->update($data);
+
+        // 5. Return response
+        return response()->json([
+            'success' => true,
+            'message' => 'Genre updated successfully',
+            'data' => $genre
+        ], 200);
+    }
+
+    public function destroy(string $id) {
+        $genre = Genre::find($id);
+
+        if (!$genre) {
+            return response()->json([
+            'success'=> false,
+            'message'=>'Resource not found'
+            ], 404);
+        }
+
+        $genre->delete();
+
+        return response()->json([
+            'success'=> true,
+            'message'=>'Delete resource successfully'
+        ], 200);
+    }
 }
